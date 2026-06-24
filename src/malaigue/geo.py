@@ -1,6 +1,5 @@
 """Geospatial primitives for the Thau lagoon AOI."""
 import geopandas as gpd
-import numpy as np
 from rasterio.features import rasterize
 from shapely.geometry import Polygon
 
