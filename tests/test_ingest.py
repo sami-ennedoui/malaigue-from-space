@@ -23,6 +23,16 @@ def test_list_clear_dates_filters_and_sorts(monkeypatch):
     assert df["cloud"].max() < 20
 
 
+def test_list_clear_dates_tile_filter(monkeypatch):
+    items = [
+        _Item("S2A_31TEJ_20180701", "2018-07-01T10:00:00Z", 5.0),
+        _Item("S2B_31TEH_20180702", "2018-07-02T10:00:00Z", 4.0),
+    ]
+    monkeypatch.setattr(ingest, "_search_items", lambda *a, **k: items)
+    df = ingest.list_clear_dates((0, 0, 1, 1), "2018-07-01", "2018-07-10", tile="31TEJ")
+    assert list(df["item_id"]) == ["S2A_31TEJ_20180701"]
+
+
 import os
 import pytest
 

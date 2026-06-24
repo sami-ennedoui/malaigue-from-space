@@ -43,10 +43,13 @@ def _search_items(bbox, start, end, max_cloud):
     return _with_retry(run)
 
 
-def list_clear_dates(bbox, start, end, max_cloud=20):
-    """Low-cloud Sentinel-2 acquisitions over bbox, sorted by date ascending."""
+def list_clear_dates(bbox, start, end, max_cloud=20, tile=None):
+    """Low-cloud Sentinel-2 acquisitions over bbox, sorted by date ascending.
+    If tile is given (e.g. "31TEJ"), keep only items on that MGRS tile."""
     rows = []
     for it in _search_items(bbox, start, end, max_cloud):
+        if tile and f"_{tile}_" not in it.id:
+            continue
         rows.append({
             "date": pd.to_datetime(it.properties["datetime"]).date(),
             "item_id": it.id,

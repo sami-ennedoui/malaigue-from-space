@@ -5,9 +5,12 @@ import xarray as xr
 
 
 def ndci(ds):
-    """Normalized Difference Chlorophyll Index = (rededge1 - red) / (rededge1 + red)."""
-    red, rededge1 = ds["red"], ds["rededge1"]
-    return (rededge1 - red) / (rededge1 + red)
+    """Normalized Difference Chlorophyll Index = (rededge1 - red) / (rededge1 + red).
+    Cast to float first: the raw bands are uint16 and the subtraction would underflow."""
+    red = ds["red"].astype("float32")
+    rededge1 = ds["rededge1"].astype("float32")
+    denom = rededge1 + red
+    return ((rededge1 - red) / denom).where(denom != 0)
 
 
 def turbidity_red(ds):
