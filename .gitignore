@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.uv/
+
+# Environment
+.env
+.env.*
+
+# Data and large intermediates (reproducible from STAC, kept out of git)
+data/
+*.tif
+*.tiff
+*.SAFE/
+*.npy
+*.npz
+.stac-cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Build caches
+outputs/cache/
+
+# OS
+.DS_Store
