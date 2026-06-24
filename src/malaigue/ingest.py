@@ -1,4 +1,6 @@
 """Sentinel-2 L2A access via the Planetary Computer STAC API."""
+import time
+
 import odc.stac
 import pandas as pd
 import planetary_computer
@@ -16,13 +18,28 @@ def _client():
     return pystac_client.Client.open(STAC_URL, modifier=planetary_computer.sign_inplace)
 
 
+def _with_retry(fn, tries=5, delay=3):
+    """Retry a network call a few times. The STAC API and the laptop sleeping cause
+    transient timeouts on long runs."""
+    last = None
+    for i in range(tries):
+        try:
+            return fn()
+        except Exception as exc:  # noqa: BLE001  transient network/API errors
+            last = exc
+            time.sleep(delay * (i + 1))
+    raise last
+
+
 def _search_items(bbox, start, end, max_cloud):
-    search = _client().search(
-        collections=[COLLECTION], bbox=list(bbox),
-        datetime=f"{start}/{end}",
-        query={"eo:cloud_cover": {"lt": max_cloud}},
-    )
-    return list(search.items())
+    def run():
+        search = _client().search(
+            collections=[COLLECTION], bbox=list(bbox),
+            datetime=f"{start}/{end}",
+            query={"eo:cloud_cover": {"lt": max_cloud}},
+        )
+        return list(search.items())
+    return _with_retry(run)
 
 
 def list_clear_dates(bbox, start, end, max_cloud=20):
@@ -39,8 +56,10 @@ def list_clear_dates(bbox, start, end, max_cloud=20):
 
 
 def _signed_item(item_id):
-    search = _client().search(collections=[COLLECTION], ids=[item_id])
-    return next(search.items())
+    def run():
+        search = _client().search(collections=[COLLECTION], ids=[item_id])
+        return next(search.items())
+    return _with_retry(run)
 
 
 def load_scene(item_id, bbox, bands=None, resolution=10):
