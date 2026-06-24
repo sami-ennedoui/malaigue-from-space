@@ -34,8 +34,31 @@ this first and append new findings last.
 - The dense July to September run gives a good embedding time series.
 
 ## Open items to confirm later
-- Clay v1.5 encoder API and normalization constants (Task 8 spike).
 - Atmospheric correction: using L2A (land-tuned) as a known limitation over water.
+
+## Clay v1.5 (Task 8 spike, 2026-06-24)
+- Install: `claymodel` from git (Clay-foundation/model). MUST pin BOTH torch and torchvision to the
+  pytorch-cpu index (download.pytorch.org/whl/cpu). A PyPI torchvision against the +cpu torch breaks
+  with "operator torchvision::nms does not exist". Installed torch 2.12.1+cpu, torchvision 0.27.1+cpu.
+- Checkpoint: HF repo `made-with-clay/Clay`, file `v1.5/clay-v1.5.ckpt` (~5.2 GB Lightning checkpoint,
+  bundles optimizer state). RAM here is 15 GB total / ~7.8 GB free, so do NOT torch.load the whole
+  file: load with `mmap=True` and copy only `model.encoder.*` into the encoder.
+- metadata.yaml is NOT shipped in the installed package; fetched from
+  raw.githubusercontent.com/Clay-foundation/model/main/configs/metadata.yaml into data/clay/.
+- Hyperparameters: model_size "large", patch_size 8, dim 1024, embeddings_level "mean".
+- Lean load that works: build ClayMAEModule(model_size="large", mask_ratio=0.0, patch_size=8,
+  shuffle=False, metadata_path=...), then load ONLY model.encoder.* (n_missing=0, n_unexpected=0).
+  Skips the dinov2 teacher and proj-head shape mismatches; the default small SAM-ViT teacher is built
+  but never used.
+- encoder.forward(datacube), datacube = {pixels [1,10,256,256], time [1,4], latlon [1,4],
+  waves [10], gsd scalar}. Returns a tuple: out[0]=(1,1025,1024) cls+patches, out[1]=(1,1024) pooled.
+  Patch embeddings = out[0][0,1:].reshape(32,32,1024); chip embedding = out[1][0].
+- S2 band order/means/stds/wavelengths from metadata sentinel-2-l2a; order
+  blue,green,red,rededge1,rededge2,rededge3,nir,nir08,swir16,swir22 == our CLAY_S2_BANDS
+  (B02..B12, B8A). Pixels fed as raw L2A DN (no /10000).
+- Calibration caveat: 2018 L2A reprocessed; BOA offset convention not adjusted. Minor vs the strong
+  white-water signal; noted as a limitation.
+- Verified on CPU: load + one chip -> (32,32,1024) in ~21 s.
 
 ## Integration note (Task 5)
 - The `.rio` accessor requires `import rioxarray` somewhere in the process; added to `ingest.py`.

@@ -15,11 +15,26 @@ dependencies = [
   "pystac-client",
   "planetary-computer",
   "scikit-learn",
+  "scipy",
   "matplotlib",
+  "torch",
+  "torchvision",
+  "huggingface_hub",
+  "claymodel",
 ]
 
 [dependency-groups]
 dev = ["pytest"]
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
+torchvision = { index = "pytorch-cpu" }
+claymodel = { git = "https://github.com/Clay-foundation/model.git" }
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
 
 [build-system]
 requires = ["hatchling"]
