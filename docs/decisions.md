@@ -35,5 +35,35 @@ this first and append new findings last.
 
 ## Open items to confirm later
 - Clay v1.5 encoder API and normalization constants (Task 8 spike).
-- REPHY CSV schema and Thau station labels (Task 7 spike).
 - Atmospheric correction: using L2A (land-tuned) as a known limitation over water.
+
+## Integration note (Task 5)
+- The `.rio` accessor requires `import rioxarray` somewhere in the process; added to `ingest.py`.
+  odc-stac datasets then expose `.rio.crs/.transform/.height/.width` via the `spatial_ref` coord.
+
+## REPHY in-situ (Task 7 spike, 2026-06-24)
+- File: `REPHY_Med_1987-2022.csv` (273 MB, the Mediterranean half of the SEANOE zip).
+  Semicolon-separated, latin-1, 56 Quadrige columns.
+- Thau filter: `Lieu de surveillance : Entité de classement : Libellé` == "104 - Etang de Thau"
+  (49,896 rows). Main long-term station "Bouzigues (a)" (a crisis sector); also Marseillan (a),
+  Thau - Crique de l'Angle, Mèze zone a/b.
+- Parameter labels: "Chlorophylle a", "Oxygène dissous", "Turbidité FNU".
+- Columns used: "Passage : Date" (dd/mm/yyyy), the entité, "Lieu de surveillance : Libellé" (station),
+  "Résultat : Libellé paramètre", "Résultat : Valeur de la mesure" (French comma decimals, handled).
+
+### 2018 in-situ malaïgue signal (Bouzigues a, dissolved oxygen, mg/L)
+- 2018-06-19: ~6.5 to 7.1 (healthy baseline)
+- 2018-07-02: dips to ~4.0 to 4.4 (early-July onset, matches the documented ~5 July white waters)
+- 2018-07-18 / 07-30: back to ~5.8 to 6.2
+- 2018-08-13: 0.04 at Bouzigues (near-total anoxia); chlorophyll a 5.11 and turbidity 5.69 at
+  Marseillan (vs ~0.5 to 1.0 and ~1 normally) — the most severe in-situ anoxic peak of the summer.
+- Takeaway: the 2018 malaïgue was multi-pulse (early-July onset, severe mid-August anoxic peak).
+  REPHY is biweekly, so it samples the pulses coarsely.
+
+### Implication for the satellite experiment (feeds Task 12)
+- Crisis scenes to test: 2018-07-07 (0.8% cloud, near the July onset) and 2018-08-16 (8.2% cloud,
+  3 days after the 13 Aug anoxia peak).
+- Baseline: 2018-06-27 (1.9%) is near-baseline (O2 still normal on 06-19/06-25); consider also an
+  April or May scene for a cleaner pre-bloom reference.
+- The embedding time series across all 13 summer scenes is checked against this two-pulse in-situ
+  trace (Spearman vs O2 and chlorophyll).
