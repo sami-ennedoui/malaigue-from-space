@@ -1,5 +1,7 @@
 """Geospatial primitives for the Thau lagoon AOI."""
 import geopandas as gpd
+import numpy as np
+from rasterio.features import rasterize
 from shapely.geometry import Polygon
 
 SCENE_CRS = "EPSG:32631"  # UTM zone 31N, the Sentinel-2 tile CRS over Thau
@@ -39,3 +41,26 @@ def sectors_4326():
 def reproject_gdf(gdf, dst_crs):
     """Reproject a GeoDataFrame to dst_crs."""
     return gdf.to_crs(dst_crs)
+
+
+def rasterize_mask(geom, transform, shape, crs):
+    """Boolean mask (True inside geom) on a raster grid given by transform+shape.
+    geom is assumed already in the raster CRS; crs is kept for interface clarity."""
+    arr = rasterize(
+        [(geom, 1)], out_shape=shape, transform=transform,
+        fill=0, dtype="uint8", all_touched=False,
+    )
+    return arr.astype(bool)
+
+
+def chip_windows(bounds, chip_px=256, res=10):
+    """Non-overlapping (col_off, row_off, width, height) windows tiling bounds
+    with chip_px square chips at the given resolution in metres."""
+    minx, miny, maxx, maxy = bounds
+    n_cols = int((maxx - minx) // (chip_px * res))
+    n_rows = int((maxy - miny) // (chip_px * res))
+    windows = []
+    for r in range(max(n_rows, 1)):
+        for c in range(max(n_cols, 1)):
+            windows.append((c * chip_px, r * chip_px, chip_px, chip_px))
+    return windows
