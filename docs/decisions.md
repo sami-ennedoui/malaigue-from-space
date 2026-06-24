@@ -60,6 +60,18 @@ this first and append new findings last.
   white-water signal; noted as a limitation.
 - Verified on CPU: load + one chip -> (32,32,1024) in ~21 s.
 
+## STAC provider switch (2026-06-24, during the run)
+- Planetary Computer search began timing out persistently (30 s -> APIError) after a laptop suspend.
+  The documented fallback, Element84 Earth Search, answered in ~1 s, so we switched to it.
+- Earth Search: `https://earth-search.aws.element84.com/v1`, collection `sentinel-2-l2a`, no signing.
+  Asset keys are common names (blue, green, red, rededge1, rededge2, rededge3, nir, nir08, swir16,
+  swir22) that match Clay's metadata band_order one-to-one. So `CLAY_S2_BANDS` now uses those names
+  and NDCI = (rededge1 - red) / (rededge1 + red).
+- Earth Search returns multiple processing baselines per date (..._0_L2A, ..._1_L2A); `list_clear_dates`
+  dedupes to one scene per date (lowest cloud).
+- Added retry-with-backoff to the STAC calls so a transient timeout or a suspend mid-run does not
+  crash a long job.
+
 ## Integration note (Task 5)
 - The `.rio` accessor requires `import rioxarray` somewhere in the process; added to `ingest.py`.
   odc-stac datasets then expose `.rio.crs/.transform/.height/.width` via the `spatial_ref` coord.

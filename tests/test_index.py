@@ -4,9 +4,9 @@ from malaigue import index
 
 
 def _toy_ds():
-    b04 = xr.DataArray(np.array([[0.10, 0.10], [0.20, 0.20]]), dims=("y", "x"))
-    b05 = xr.DataArray(np.array([[0.30, 0.30], [0.20, 0.20]]), dims=("y", "x"))
-    return xr.Dataset({"B04": b04, "B05": b05})
+    red = xr.DataArray(np.array([[0.10, 0.10], [0.20, 0.20]]), dims=("y", "x"))
+    rededge1 = xr.DataArray(np.array([[0.30, 0.30], [0.20, 0.20]]), dims=("y", "x"))
+    return xr.Dataset({"red": red, "rededge1": rededge1})
 
 
 def test_ndci_formula():

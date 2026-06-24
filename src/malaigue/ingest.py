@@ -1,21 +1,22 @@
-"""Sentinel-2 L2A access via the Planetary Computer STAC API."""
+"""Sentinel-2 L2A access via the Element84 Earth Search STAC API."""
 import time
 
 import odc.stac
 import pandas as pd
-import planetary_computer
 import pystac_client
 import rioxarray  # noqa: F401  registers the .rio accessor on xarray objects
 
-# Clay v1.5 Sentinel-2 band order (10 bands, the 10 m and 20 m reflectance bands).
-CLAY_S2_BANDS = ["B02", "B03", "B04", "B05", "B06", "B07", "B08", "B8A", "B11", "B12"]
+# Clay v1.5 Sentinel-2 band order, as Element84 Earth Search common-name asset keys.
+# These line up one-to-one with Clay's metadata band_order (blue..swir22).
+CLAY_S2_BANDS = ["blue", "green", "red", "rededge1", "rededge2", "rededge3",
+                 "nir", "nir08", "swir16", "swir22"]
 
-STAC_URL = "https://planetarycomputer.microsoft.com/api/stac/v1"
+STAC_URL = "https://earth-search.aws.element84.com/v1"
 COLLECTION = "sentinel-2-l2a"
 
 
 def _client():
-    return pystac_client.Client.open(STAC_URL, modifier=planetary_computer.sign_inplace)
+    return pystac_client.Client.open(STAC_URL)
 
 
 def _with_retry(fn, tries=5, delay=3):
@@ -51,7 +52,12 @@ def list_clear_dates(bbox, start, end, max_cloud=20):
             "item_id": it.id,
             "cloud": float(it.properties["eo:cloud_cover"]),
         })
-    df = pd.DataFrame(rows).sort_values("date").reset_index(drop=True)
+    # Earth Search returns multiple processing versions per date; keep one per date (lowest cloud).
+    df = (pd.DataFrame(rows)
+          .sort_values(["date", "cloud"])
+          .drop_duplicates("date", keep="first")
+          .sort_values("date")
+          .reset_index(drop=True))
     return df
 
 

@@ -5,14 +5,14 @@ import xarray as xr
 
 
 def ndci(ds):
-    """Normalized Difference Chlorophyll Index = (B05 - B04) / (B05 + B04)."""
-    b04, b05 = ds["B04"], ds["B05"]
-    return (b05 - b04) / (b05 + b04)
+    """Normalized Difference Chlorophyll Index = (rededge1 - red) / (rededge1 + red)."""
+    red, rededge1 = ds["red"], ds["rededge1"]
+    return (rededge1 - red) / (rededge1 + red)
 
 
 def turbidity_red(ds):
-    """Simple turbidity proxy: red-band (B04) surface reflectance."""
-    return ds["B04"]
+    """Simple turbidity proxy: red-band surface reflectance."""
+    return ds["red"]
 
 
 def apply_water_mask(da, mask):

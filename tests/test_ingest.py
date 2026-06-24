@@ -34,9 +34,9 @@ def test_load_scene_live_small():
     bbox = geo.aoi_bbox_4326()
     df = ingest.list_clear_dates(bbox, "2018-07-01", "2018-07-12", max_cloud=30)
     assert len(df) > 0
-    ds = ingest.load_scene(df["item_id"].iloc[0], bbox, bands=["B04", "B05"])
-    assert "B04" in ds and "B05" in ds
+    ds = ingest.load_scene(df["item_id"].iloc[0], bbox, bands=["red", "rededge1"])
+    assert "red" in ds and "rededge1" in ds
     assert ds.rio.crs is not None
-    assert ds["B04"].shape[0] > 10
+    assert ds["red"].shape[0] > 10
     # force a tiny compute to confirm real pixels download
-    assert float(ds["B04"].isel(x=slice(0, 2), y=slice(0, 2)).mean()) >= 0
+    assert float(ds["red"].isel(x=slice(0, 2), y=slice(0, 2)).mean()) >= 0
