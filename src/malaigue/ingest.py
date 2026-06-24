@@ -1,7 +1,12 @@
 """Sentinel-2 L2A access via the Planetary Computer STAC API."""
+import odc.stac
 import pandas as pd
 import planetary_computer
 import pystac_client
+import rioxarray  # noqa: F401  registers the .rio accessor on xarray objects
+
+# Clay v1.5 Sentinel-2 band order (10 bands, the 10 m and 20 m reflectance bands).
+CLAY_S2_BANDS = ["B02", "B03", "B04", "B05", "B06", "B07", "B08", "B8A", "B11", "B12"]
 
 STAC_URL = "https://planetarycomputer.microsoft.com/api/stac/v1"
 COLLECTION = "sentinel-2-l2a"
@@ -31,3 +36,19 @@ def list_clear_dates(bbox, start, end, max_cloud=20):
         })
     df = pd.DataFrame(rows).sort_values("date").reset_index(drop=True)
     return df
+
+
+def _signed_item(item_id):
+    search = _client().search(collections=[COLLECTION], ids=[item_id])
+    return next(search.items())
+
+
+def load_scene(item_id, bbox, bands=None, resolution=10):
+    """Load a band stack clipped to bbox (EPSG:4326) as an xarray.Dataset in UTM."""
+    bands = bands or CLAY_S2_BANDS
+    item = _signed_item(item_id)
+    ds = odc.stac.load(
+        [item], bands=bands, bbox=list(bbox),
+        resolution=resolution, chunks={},
+    )
+    return ds.isel(time=0) if "time" in ds.dims else ds

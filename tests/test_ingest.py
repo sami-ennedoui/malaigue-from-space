@@ -21,3 +21,22 @@ def test_list_clear_dates_filters_and_sorts(monkeypatch):
     df = ingest.list_clear_dates((3.52, 43.35, 3.73, 43.47), "2018-07-01", "2018-07-10", max_cloud=20)
     assert list(df["item_id"]) == ["S2_a", "S2_b"]  # sorted by date ascending
     assert df["cloud"].max() < 20
+
+
+import os
+import pytest
+
+
+@pytest.mark.skipif(os.environ.get("MALAIGUE_LIVE") != "1",
+                    reason="set MALAIGUE_LIVE=1 to hit the live STAC API")
+def test_load_scene_live_small():
+    from malaigue import geo
+    bbox = geo.aoi_bbox_4326()
+    df = ingest.list_clear_dates(bbox, "2018-07-01", "2018-07-12", max_cloud=30)
+    assert len(df) > 0
+    ds = ingest.load_scene(df["item_id"].iloc[0], bbox, bands=["B04", "B05"])
+    assert "B04" in ds and "B05" in ds
+    assert ds.rio.crs is not None
+    assert ds["B04"].shape[0] > 10
+    # force a tiny compute to confirm real pixels download
+    assert float(ds["B04"].isel(x=slice(0, 2), y=slice(0, 2)).mean()) >= 0
