@@ -21,9 +21,9 @@ def spearman_vs_insitu(anom_df, rephy_df, param):
     """Spearman correlation between the embedding anomaly and an in-situ parameter,
     matched on nearest date within 7 days."""
     ins = rephy_df[rephy_df["param"] == param].copy()
-    ins["date"] = pd.to_datetime(ins["date"])
+    ins["date"] = pd.to_datetime(ins["date"]).astype("datetime64[ns]")
     a = anom_df.copy()
-    a["date"] = pd.to_datetime(a["date"])
+    a["date"] = pd.to_datetime(a["date"]).astype("datetime64[ns]")
     merged = pd.merge_asof(
         a.sort_values("date"), ins.sort_values("date"),
         on="date", direction="nearest", tolerance=pd.Timedelta("7D"),

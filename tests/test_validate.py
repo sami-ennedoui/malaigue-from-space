@@ -35,3 +35,19 @@ def test_spearman_vs_insitu_monotonic():
     out = validate.spearman_vs_insitu(anom, rephy, "Chlorophylle a")
     assert out["n"] == 3
     assert out["rho"] > 0.9
+
+
+def test_spearman_handles_date_resolution_mismatch():
+    # anomaly dates come from python dates (datetime64[s]); REPHY parses to [us].
+    anom = pd.DataFrame({
+        "date": [dt.date(2018, 6, 1), dt.date(2018, 7, 1), dt.date(2018, 8, 1)],
+        "distance": [0.1, 0.5, 0.9],
+    })
+    rephy = pd.DataFrame({
+        "date": pd.to_datetime(["2018-06-02", "2018-07-02", "2018-08-02"]).astype("datetime64[us]"),
+        "param": ["Oxygène dissous"] * 3,
+        "value": [7.0, 4.0, 0.1],
+    })
+    out = validate.spearman_vs_insitu(anom, rephy, "Oxygène dissous")
+    assert out["n"] == 3
+    assert out["rho"] < -0.9  # anomaly rises as oxygen falls

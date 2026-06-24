@@ -6,6 +6,7 @@ the Bouzigues crisis sector, and writes an honest verdict to docs/evaluation.md.
 """
 import datetime as dt
 import os
+import pickle
 
 import geopandas as gpd
 import numpy as np
@@ -15,6 +16,7 @@ from malaigue import analyze, embed, geo, index, ingest, report, rephy, validate
 CKPT = "data/clay/v1.5/clay-v1.5.ckpt"
 META = "data/clay/metadata.yaml"
 REPHY_CSV = "data/rephy/REPHY_Med_1987-2022.csv"
+CACHE = "data/cache/embeddings.pkl"
 LATLON = (43.42, 3.62)
 SEASON = ("2018-04-01", "2018-09-30")
 BASELINE = (dt.date(2018, 4, 1), dt.date(2018, 6, 10))
@@ -83,9 +85,6 @@ def _verdict(temporal, rho_o2, rho_chl, iou):
 def main():
     os.makedirs("outputs/figures", exist_ok=True)
     bbox = geo.aoi_bbox_4326()
-    dates = ingest.list_clear_dates(bbox, *SEASON, max_cloud=20, tile="31TEJ")
-    print("clear scenes:\n", dates.to_string(index=False))
-
     model = embed.load_clay(CKPT, META)
     lagoon_utm = geo.reproject_gdf(
         gpd.GeoDataFrame(geometry=[geo.lagoon_polygon_4326()], crs="EPSG:4326"),
@@ -94,15 +93,29 @@ def main():
     bz = sectors_utm[sectors_utm["name"] == "bouzigues"].geometry.iloc[0].centroid
     bouzigues_xy = (bz.x, bz.y)
 
-    emb_by_date, ndci_mean, item_by_date = {}, {}, {}
-    for _, r in dates.iterrows():
-        ds = _scene(r["item_id"], bbox)
-        mask = _lagoon_mask(ds, lagoon_utm)
-        emb_by_date[r["date"]] = embed.lagoon_embedding(model, ds, mask, str(r["date"]), LATLON)
-        nd = index.apply_water_mask(index.ndci(ds), mask)
-        ndci_mean[r["date"]] = float(np.nanmean(nd.values))
-        item_by_date[r["date"]] = r["item_id"]
-        print(f"  {r['date']}  embedded | lagoon mean NDCI={ndci_mean[r['date']]:.3f}")
+    # Embedding the season is the slow part; cache it (set MALAIGUE_CACHE=1) so the
+    # downstream analysis can be iterated without re-embedding every scene.
+    use_cache = os.environ.get("MALAIGUE_CACHE") == "1"
+    if use_cache and os.path.exists(CACHE):
+        with open(CACHE, "rb") as f:
+            dates, emb_by_date, ndci_mean, item_by_date = pickle.load(f)
+        print(f"loaded cached embeddings for {len(emb_by_date)} dates")
+    else:
+        dates = ingest.list_clear_dates(bbox, *SEASON, max_cloud=20, tile="31TEJ")
+        print("clear scenes:\n", dates.to_string(index=False))
+        emb_by_date, ndci_mean, item_by_date = {}, {}, {}
+        for _, r in dates.iterrows():
+            ds = _scene(r["item_id"], bbox)
+            mask = _lagoon_mask(ds, lagoon_utm)
+            emb_by_date[r["date"]] = embed.lagoon_embedding(model, ds, mask, str(r["date"]), LATLON)
+            nd = index.apply_water_mask(index.ndci(ds), mask)
+            ndci_mean[r["date"]] = float(np.nanmean(nd.values))
+            item_by_date[r["date"]] = r["item_id"]
+            print(f"  {r['date']}  embedded | lagoon mean NDCI={ndci_mean[r['date']]:.3f}")
+        if use_cache:
+            os.makedirs("data/cache", exist_ok=True)
+            with open(CACHE, "wb") as f:
+                pickle.dump((dates, emb_by_date, ndci_mean, item_by_date), f)
 
     baseline_dates = sorted(d for d in emb_by_date if BASELINE[0] <= d <= BASELINE[1])
     if not baseline_dates:
