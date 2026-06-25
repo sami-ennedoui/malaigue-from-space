@@ -1,5 +1,7 @@
 # malaigue-from-space
 
+[![tests](https://github.com/sami-ennedoui/malaigue-from-space/actions/workflows/ci.yml/badge.svg)](https://github.com/sami-ennedoui/malaigue-from-space/actions/workflows/ci.yml)
+
 Testing whether the Clay foundation model can flag the 2018 étang de Thau malaïgue from
 Sentinel-2 embeddings.
 
@@ -14,6 +16,30 @@ the in-situ oxygen or chlorophyll, and their spatial pattern does not match a ph
 index. A simple spectral index and the in-situ measurements detect the event. The frozen
 foundation model does not. The full reasoning, with numbers and figures, is in
 [docs/evaluation.md](docs/evaluation.md).
+
+## Results
+
+Across 15 clear Sentinel-2 scenes over tile T31TEJ in 2018, the lagoon embedding barely moves, it
+does not correlate with the in-situ measurements, and its spatial pattern does not match the
+chlorophyll index:
+
+- The largest embedding deviation from the spring baseline is a cosine distance of 0.059, which is
+  negligible.
+- Embedding against in-situ oxygen, Spearman 0.21 with p = 0.49. Against chlorophyll, 0.05 with
+  p = 0.87. Both are statistically nothing.
+- The spatial overlap of the embedding hotspots and the chlorophyll index at Bouzigues is 0.025.
+
+![Embedding anomaly through summer 2018, with REPHY oxygen and chlorophyll](outputs/figures/timeseries.png)
+
+The red embedding anomaly stays small and flat through the crisis. The in-situ series prove the
+crisis was real, which is what makes the negative trustworthy.
+
+![Clay embedding change at Bouzigues, 17 July against the spring baseline](outputs/figures/anomaly_map.png)
+
+![NDCI chlorophyll index at Bouzigues on 17 July](outputs/figures/ndci_crisis.png)
+
+The embedding change at Bouzigues is smooth and seasonal rather than a localized crisis signature,
+and it does not line up with the chlorophyll index next to it.
 
 ## Why a negative result is the point
 
