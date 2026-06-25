@@ -6,8 +6,8 @@ and the figures are in `outputs/figures/`.
 ## The question
 
 In the summer of 2018 the étang de Thau suffered a severe malaïgue, an anoxic crisis that
-killed the entire mussel stock and a large share of the oysters. The question here is narrow
-and honest: does a generic Earth observation foundation model, Clay v1.5, used frozen and with
+killed the entire mussel stock and a large share of the oysters. The question here is narrow:
+does a generic Earth observation foundation model, Clay v1.5, used frozen and with
 no task specific training, produce Sentinel-2 embeddings that flag this crisis. The embedding
 signal is judged against a physical chlorophyll index, NDCI, and against the IFREMER REPHY
 in-situ record.
@@ -16,8 +16,7 @@ in-situ record.
 
 No. Clay's embeddings do not track the malaïgue. The clean detector of this crisis is the in-situ
 oxygen, which crashed to near zero. The optical signals, both the chlorophyll index and the
-embeddings, are muted at the lagoon scale, and the embeddings most of all. The result is
-trustworthy, for the reasons below.
+embeddings, are muted at the lagoon scale, and the embeddings most of all. The reasoning is below.
 
 ## The numbers
 
@@ -46,9 +45,9 @@ spring scenes as the baseline:
 - `ndci_crisis.png`. On 17 July the lagoon water is uniformly low chlorophyll with only shoreline
   edge effects, and no bloom hotspot in the open water.
 
-## Why the negative is trustworthy
+## Why the result holds
 
-The anti-fluke design did its job. The REPHY in-situ data independently proves the crisis was
+The cross-checks did their job. The REPHY in-situ data independently proves the crisis was
 real, since dissolved oxygen at Bouzigues fell to 0.04 in mid August. So the embeddings staying
 flat is a fact about the model, not about missing or bad data. And the embeddings are not dead:
 they clearly respond to the season, since the April to July change is about 0.2. They simply do
@@ -57,7 +56,7 @@ in-situ record, so Clay staying flat through it is not a coincidence. The chloro
 itself muted at the lagoon scale, so this is less a strong index beating the model and more that
 the model carries no usable signal here while the in-situ does.
 
-## Honest limitations
+## Limitations
 
 These are the reasons the negative should be read as "not with this setup" rather than a final
 word, and they are the natural next experiments.
@@ -76,8 +75,8 @@ word, and they are the natural next experiments.
 - Frozen and zero shot. Clay is used only as a feature extractor. Light fine tuning, or a small
   probe trained on a few labeled water states, could change the picture.
 
-## What this is, honestly
+## Scope
 
-A reproducible Sentinel-2 and geopandas pipeline that asks one clear question about a foundation
-model and answers it with rigor, including a negative result that is validated rather than
-hidden. It is an exploration, not a claim that foundation models cannot do water quality.
+A reproducible Sentinel-2 and geopandas pipeline that tests one question about a foundation
+model and reports a negative result for this setup. Clay is used only as a frozen feature
+extractor, so this is not a claim about what foundation models can or cannot do in general.

@@ -1,7 +1,6 @@
 # Decisions and build log
 
-Running log of empirical findings and choices made during the build. Workers read
-this first and append new findings last.
+Running log of empirical findings and choices made during the build.
 
 ## Data access (Task 4 spike, 2026-06-24)
 - STAC endpoint: Microsoft Planetary Computer, `https://planetarycomputer.microsoft.com/api/stac/v1`,
@@ -91,7 +90,7 @@ this first and append new findings last.
 - 2018-07-02: dips to ~4.0 to 4.4 (early-July onset, matches the documented ~5 July white waters)
 - 2018-07-18 / 07-30: back to ~5.8 to 6.2
 - 2018-08-13: 0.04 at Bouzigues (near-total anoxia); chlorophyll a 5.11 and turbidity 5.69 at
-  Marseillan (vs ~0.5 to 1.0 and ~1 normally) — the most severe in-situ anoxic peak of the summer.
+  Marseillan (vs ~0.5 to 1.0 and ~1 normally), the most severe in-situ anoxic peak of the summer.
 - Takeaway: the 2018 malaïgue was multi-pulse (early-July onset, severe mid-August anoxic peak).
   REPHY is biweekly, so it samples the pulses coarsely.
 

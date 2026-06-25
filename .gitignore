@@ -24,5 +24,8 @@ data/
 # Build caches
 outputs/cache/
 
+# Planning notes (kept local)
+docs/superpowers/
+
 # OS
 .DS_Store
