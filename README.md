@@ -2,77 +2,61 @@
 
 [![tests](https://github.com/sami-ennedoui/malaigue-from-space/actions/workflows/ci.yml/badge.svg)](https://github.com/sami-ennedoui/malaigue-from-space/actions/workflows/ci.yml)
 
-Testing whether the Clay v1.5 foundation model reacts to the 2018 étang de Thau malaïgue in its
-Sentinel-2 embeddings, with no task-specific training. The result is negative.
+Can a geospatial foundation model recognise a water-quality crisis it was never trained on? This
+repository tests Clay v1.5 against the 2018 malaïgue in the étang de Thau, a severe summer anoxia
+that killed most of the lagoon's shellfish. Clay runs on Sentinel-2 imagery as a frozen encoder,
+and its embeddings are measured against the IFREMER in-situ record and a chlorophyll index.
 
-A malaïgue is an anoxic crisis in the Thau lagoon, on the French Mediterranean coast. The summer
-2018 event killed the lagoon's entire mussel stock and a large share of the oysters. The question
-here is whether a generic Earth observation model, used as a frozen feature extractor, produces
-embeddings that react to such an event. The embedding signal is measured against a physical
-chlorophyll index, NDCI, and the IFREMER REPHY in-situ record.
+They do not detect it. Over fifteen cloud-free scenes from April to September 2018 the lagoon
+embedding moves by at most 0.059 in cosine distance, shows no correlation with in-situ oxygen or
+chlorophyll, and has no spatial overlap with the chlorophyll index. The measurement that marks the
+crisis is the in-situ dissolved oxygen, which fell to 0.04 mg/L at Bouzigues on 13 August. The
+full report, with methods and figures, is in [docs/evaluation.md](docs/evaluation.md).
 
-Across the 2018 season the lagoon embedding barely moves, it does not correlate with in-situ oxygen
-or chlorophyll, and its spatial pattern does not match the chlorophyll index. The signal that tracks
-the crisis is the in-situ dissolved oxygen, which fell to near zero in mid August. At the lagoon
-scale the chlorophyll index and the embeddings are both flat, the embeddings most of all. The full
-write-up, with numbers and figures, is in [docs/evaluation.md](docs/evaluation.md).
+## Result
 
-## Results
+| Reference | Metric | Value |
+| --- | --- | --- |
+| Embedding against the spring baseline | largest cosine distance | 0.059 |
+| Embedding anomaly against dissolved oxygen | Spearman rho, n = 13 | 0.21, p = 0.49 |
+| Embedding anomaly against chlorophyll a | Spearman rho, n = 15 | 0.05, p = 0.87 |
+| Embedding change against NDCI at Bouzigues | intersection over union | 0.025 |
 
-Across 15 clear Sentinel-2 scenes over tile T31TEJ in 2018:
+![Embedding anomaly through 2018 against the REPHY oxygen and chlorophyll records](outputs/figures/timeseries.png)
 
-- The largest embedding deviation from the spring baseline is a cosine distance of 0.059, which is
-  negligible.
-- The embedding anomaly does not correlate with the in-situ series. Against dissolved oxygen,
-  Spearman 0.21 at p = 0.49. Against chlorophyll, 0.05 at p = 0.87.
-- The spatial overlap between the embedding hotspots and the chlorophyll index at Bouzigues is 0.025.
+The embedding anomaly, in red, is small and scattered, with no rise that matches the summer
+crisis. The in-situ oxygen falls through the summer; the chlorophyll peak in late autumn is a
+separate bloom.
 
-![Embedding anomaly through summer 2018, with REPHY oxygen and chlorophyll](outputs/figures/timeseries.png)
+![Patch-level embedding change at Bouzigues, 17 July against the spring baseline](outputs/figures/anomaly_map.png)
 
-The embedding anomaly stays small and flat through the crisis, while the in-situ series confirm the
-event was real.
+![NDCI at Bouzigues on 17 July](outputs/figures/ndci_crisis.png)
 
-![Clay embedding change at Bouzigues, 17 July against the spring baseline](outputs/figures/anomaly_map.png)
-
-![NDCI chlorophyll index at Bouzigues on 17 July](outputs/figures/ndci_crisis.png)
-
-The embedding change at Bouzigues is smooth and seasonal rather than a localized crisis signature,
-and it does not line up with the chlorophyll index beside it.
-
-## Validation
-
-The embedding signal is checked against three independent references: the documented event with its
-date and affected sectors, the REPHY in-situ record, and the in-image NDCI index. Dissolved oxygen
-at Bouzigues fell to 0.04 mg/L in mid August, which places the crisis in time without using the
-imagery. The embeddings stay flat across that window while still responding to the change of season,
-where the April to July change is about 0.2. The flat response is a property of the model on this
-signal rather than missing or bad data.
+At the crisis sector the embedding change is the broad seasonal shift, near 0.2 and roughly
+uniform, and it does not line up with the chlorophyll index beside it.
 
 ## How it works
 
-The pipeline is a set of small modules wired together by a run script.
+Clay is used only as a frozen encoder, so nothing is trained. The work is in the pipeline around
+it.
 
-- `ingest` queries the Element84 Earth Search STAC API for Sentinel-2 L2A scenes over Thau and
-  loads the bands clipped to the lagoon.
-- `geo` holds the geospatial core: the lagoon and sector polygons, CRS reprojection, tiling, and the
-  water mask, with geopandas.
-- `index` computes NDCI, a chlorophyll proxy, as the physical reference.
-- `rephy` loads the IFREMER REPHY in-situ series for Thau.
-- `embed` loads Clay v1.5 and runs it on CPU as a frozen feature extractor, returning per-chip and
-  per-patch embeddings.
-- `analyze` turns embeddings into a seasonal anomaly time series and a spatial change map.
-- `validate` scores the agreement between the embeddings and the three references.
-- `report` draws the figures and writes the metrics.
+- `ingest` pulls Sentinel-2 L2A scenes over Thau from the Element84 Earth Search STAC API and
+  clips them to the lagoon.
+- `geo` is the geospatial core: lagoon and sector polygons, reprojection, tiling, and the water
+  mask, with geopandas.
+- `index` computes NDCI as the physical reference.
+- `rephy` loads the IFREMER REPHY in-situ series.
+- `embed` runs Clay v1.5 on CPU and returns per-chip and per-patch embeddings.
+- `analyze` turns the embeddings into a seasonal anomaly series and a spatial change map.
+- `validate` scores the embeddings against the three references.
+- `report` writes the figures and the metrics.
 
 ## Data
 
-- Sentinel-2 L2A surface reflectance from Element84 Earth Search, free and open.
-- Clay v1.5 weights from the Clay foundation on Hugging Face.
-- The REPHY in-situ dataset from IFREMER, published on SEANOE under an open licence.
-
-None of these are stored in the repository. The pipeline fetches the imagery on demand, and the
-model and the in-situ extract are downloaded once. The exact sources are listed in
-[docs/decisions.md](docs/decisions.md).
+Sentinel-2 L2A comes from Element84 Earth Search, the Clay v1.5 weights from the Clay foundation
+on Hugging Face, and the REPHY record from IFREMER on SEANOE. None of it is stored in the
+repository. The imagery is fetched on demand, and the model and the in-situ extract are downloaded
+once. Exact sources are in [docs/decisions.md](docs/decisions.md).
 
 ## Reproducing
 
@@ -84,33 +68,27 @@ uv sync
 ```
 
 Download the Clay v1.5 checkpoint and its band metadata, and the REPHY Mediterranean extract, into
-`data/`. The sources are in `docs/decisions.md`. Then run the experiment:
+`data/`, following `docs/decisions.md`. Then run the experiment and the tests:
 
 ```
 uv run python -m malaigue.run
-```
-
-It lists the clear 2018 scenes, embeds the lagoon for each, builds the anomaly trace and the
-Bouzigues map, and writes the figures to `outputs/figures/` and the metrics to `outputs/metrics.md`.
-The tests run with:
-
-```
 uv run pytest
 ```
 
-## Limitations and next steps
+The run lists the clear scenes, embeds the lagoon for each, builds the anomaly series and the
+Bouzigues map, and writes the figures and `outputs/metrics.md`.
 
-- The lagoon-wide average dilutes a crisis that is localized to specific zones and short windows.
-- NDCI is a chlorophyll proxy, while the white-water phase of a malaïgue is closer to a turbidity
-  signal, so a turbidity index may capture it better.
-- A brief surface event can fall between cloud-free revisits.
-- Sentinel-2 L2A atmospheric correction is tuned for land rather than water, where a dedicated
-  correction such as C2RCC or ACOLITE would be more faithful.
-- Clay is used frozen and zero-shot. Light fine-tuning, or a small probe trained on a few labelled
-  water states, could change the result.
+## Limitations
+
+The negative holds for this setup, not in general. The lagoon-wide average dilutes a localized
+crisis; NDCI tracks chlorophyll while the white-water phase is closer to turbidity; a short
+surface event can fall between cloud-free revisits; the L2A correction is tuned for land, not
+water; and the encoder is frozen and zero-shot. A linear probe or light fine-tuning on a few
+labeled water states is the obvious next step. These are discussed in
+[docs/evaluation.md](docs/evaluation.md).
 
 ## Scope
 
-Clay is used only as a frozen feature extractor, not trained or fine-tuned. This tests whether its
-embeddings carry a water-quality signal in this setup. It is not a benchmark of the model or a
-statement about foundation models in general.
+Clay is used only as a frozen feature extractor, never trained or fine-tuned. This is a
+single-event test of whether its embeddings carry a water-quality signal, not a benchmark of the
+model or a claim about foundation models in general.

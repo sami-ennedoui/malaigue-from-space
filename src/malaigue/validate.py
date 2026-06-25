@@ -1,4 +1,4 @@
-"""Agreement metrics tying embeddings to the three anti-fluke anchors."""
+"""Agreement metrics comparing the embeddings with the three independent references."""
 import numpy as np
 import pandas as pd
 from scipy.stats import spearmanr
