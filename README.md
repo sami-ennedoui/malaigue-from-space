@@ -13,8 +13,9 @@ its own.
 
 The short answer is no. The embeddings barely move during the crisis, they do not correlate with
 the in-situ oxygen or chlorophyll, and their spatial pattern does not match a physical chlorophyll
-index. A simple spectral index and the in-situ measurements detect the event. The frozen
-foundation model does not. The full reasoning, with numbers and figures, is in
+index. The clean detector of this crisis is the in-situ oxygen, which crashed to near zero in mid
+August. The chlorophyll index and the embeddings are both muted at the lagoon scale, the embeddings
+most of all. The full reasoning, with numbers and figures, is in
 [docs/evaluation.md](docs/evaluation.md).
 
 ## Results

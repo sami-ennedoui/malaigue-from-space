@@ -14,8 +14,10 @@ in-situ record.
 
 ## Verdict
 
-No. Clay's embeddings do not track the malaïgue. A simple spectral index and the in-situ
-measurements remain the reliable detectors. The result is trustworthy, for the reasons below.
+No. Clay's embeddings do not track the malaïgue. The clean detector of this crisis is the in-situ
+oxygen, which crashed to near zero. The optical signals, both the chlorophyll index and the
+embeddings, are muted at the lagoon scale, and the embeddings most of all. The result is
+trustworthy, for the reasons below.
 
 ## The numbers
 
@@ -50,9 +52,10 @@ The anti-fluke design did its job. The REPHY in-situ data independently proves t
 real, since dissolved oxygen at Bouzigues fell to 0.04 in mid August. So the embeddings staying
 flat is a fact about the model, not about missing or bad data. And the embeddings are not dead:
 they clearly respond to the season, since the April to July change is about 0.2. They simply do
-not respond to the water quality crisis. A coincidence cannot fake disagreement with a dated
-event, an in-situ record, and a physical index all at once, and here all three agree that Clay
-is silent.
+not respond to the water quality crisis. The crisis is anchored by a dated event and an independent
+in-situ record, so Clay staying flat through it is not a coincidence. The chlorophyll index is
+itself muted at the lagoon scale, so this is less a strong index beating the model and more that
+the model carries no usable signal here while the in-situ does.
 
 ## Honest limitations
 
