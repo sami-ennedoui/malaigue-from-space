@@ -155,7 +155,7 @@ def main():
         "spatial_iou_anom_vs_ndci": iou,
         "verdict": verdict,
     }
-    report.write_evaluation(metrics, "docs/evaluation.md")
+    report.write_evaluation(metrics, "outputs/metrics.md")
     print("\n=== METRICS ===")
     for k, v in metrics.items():
         print(f"{k}: {v}")

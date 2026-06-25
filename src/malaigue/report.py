@@ -6,8 +6,9 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 
 def plot_index_map(da, path, title="NDCI"):
+    arr = getattr(da, "values", da)
     fig, ax = plt.subplots(figsize=(6, 5))
-    im = ax.imshow(da.values, cmap="viridis")
+    im = ax.imshow(arr, cmap="viridis")
     ax.set_title(title)
     fig.colorbar(im, ax=ax)
     fig.savefig(path, dpi=120, bbox_inches="tight")

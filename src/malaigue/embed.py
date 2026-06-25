@@ -99,28 +99,27 @@ def chip_embedding(model, chip, date, latlon):
 
 
 def lagoon_embedding(model, ds, water_mask, date, latlon):
-    """One 1024-d embedding for the lagoon: mean of patch embeddings over water.
-    Centers one chip on the lagoon and pools the patches whose footprint is water."""
+    """One 1024-d embedding for the lagoon: mean of Clay patch embeddings over all
+    lagoon-water pixels. Tiles the scene into 256-px chips so the whole lagoon is
+    covered, since a single Clay chip spans only 2.56 km."""
     from malaigue import ingest
     stack = np.stack([ds[b].values for b in ingest.CLAY_S2_BANDS]).astype("float32")
-    stack = _center_crop(stack, CHIP_PX)
-    mask = _center_crop(water_mask[None].astype("float32"), CHIP_PX)[0] > 0.5
-    pe = patch_embeddings(model, stack, date, latlon)
-    pm = _downsample_mask(mask, pe.shape[:2])
-    sel = pe[pm]
-    if sel.shape[0] == 0:
-        return pe.reshape(-1, EMBED_DIM).mean(0)
-    return sel.mean(0)
-
-
-def _center_crop(arr, size):
-    _, h, w = arr.shape
-    top = max((h - size) // 2, 0)
-    left = max((w - size) // 2, 0)
-    out = arr[:, top:top + size, left:left + size]
-    if out.shape[1] < size or out.shape[2] < size:
-        out = np.pad(out, ((0, 0), (0, size - out.shape[1]), (0, size - out.shape[2])))
-    return out
+    _, h, w = stack.shape
+    pooled = []
+    for top in range(0, max(h - CHIP_PX, 0) + 1, CHIP_PX):
+        for left in range(0, max(w - CHIP_PX, 0) + 1, CHIP_PX):
+            submask = water_mask[top:top + CHIP_PX, left:left + CHIP_PX]
+            if submask.shape != (CHIP_PX, CHIP_PX) or submask.mean() < 0.02:
+                continue  # skip chips with almost no lagoon water
+            sub = stack[:, top:top + CHIP_PX, left:left + CHIP_PX]
+            pe = patch_embeddings(model, sub, date, latlon)
+            pm = _downsample_mask(submask, pe.shape[:2])
+            sel = pe[pm]
+            if sel.shape[0]:
+                pooled.append(sel)
+    if not pooled:
+        return np.zeros(EMBED_DIM, dtype="float32")
+    return np.concatenate(pooled, axis=0).mean(0)
 
 
 def _downsample_mask(mask, target_hw):
