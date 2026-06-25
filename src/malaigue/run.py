@@ -78,8 +78,9 @@ def _verdict(temporal, rho_o2, rho_chl, iou):
         signals.append(f"hotspots overlap NDCI (IoU={iou:.2f})")
     if len(signals) >= 2:
         return "POSITIVE: Clay embeddings carry the malaigue signal (" + "; ".join(signals) + ")"
-    return ("NEGATIVE: Clay embeddings do not clearly track the malaigue; the physical index and "
-            "in-situ remain the reliable detectors. Signals: " + ("; ".join(signals) if signals else "none"))
+    return ("NEGATIVE: Clay embeddings do not clearly track the malaigue; the in-situ oxygen is the "
+            "clean detector, while the optical index and the embeddings are both muted at the lagoon "
+            "scale. Signals: " + ("; ".join(signals) if signals else "none"))
 
 
 def main():
@@ -130,7 +131,7 @@ def main():
     rho_o2 = validate.spearman_vs_insitu(anom, insitu, "Oxygène dissous")
     rho_chl = validate.spearman_vs_insitu(anom, insitu, "Chlorophylle a")
 
-    cw0, cw1 = dt.date(2018, 6, 25), dt.date(2018, 8, 20)
+    cw0, cw1 = dt.date.fromisoformat(CRISIS_WINDOW[0]), dt.date.fromisoformat(CRISIS_WINDOW[1])
     crisis_date = anom[anom["date"].between(cw0, cw1)].sort_values("distance").iloc[-1]["date"]
     base_date = baseline_dates[0]
     sp = spatial_map(model, bbox, lagoon_utm, bouzigues_xy,

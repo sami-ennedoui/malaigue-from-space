@@ -29,7 +29,7 @@ def spearman_vs_insitu(anom_df, rephy_df, param):
         on="date", direction="nearest", tolerance=pd.Timedelta("7D"),
     ).dropna(subset=["value", "distance"])
     if len(merged) < 3:
-        return {"rho": np.nan, "n": int(len(merged))}
+        return {"rho": np.nan, "p": np.nan, "n": int(len(merged))}
     rho, p = spearmanr(merged["distance"], merged["value"])
     return {"rho": float(rho), "p": float(p), "n": int(len(merged))}
 
