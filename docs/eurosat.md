@@ -37,10 +37,20 @@ Two models are trained, to keep the comparison honest.
 
 EuroSAT RGB, 27,000 images at 64x64 in 10 classes: AnnualCrop, Forest,
 HerbaceousVegetation, Highway, Industrial, Pasture, PermanentCrop, Residential,
-River, SeaLake. The download is the HuggingFace mirror, about 90 MB. The split is
-made once from seed 42 and is stratified by class, so each split keeps the same
-class proportions and no image appears in more than one split. The sizes are
-18,900 training, 4,050 validation, and 4,050 test.
+River, SeaLake. The classes are mildly imbalanced, from 2,000 chips for Pasture
+to 3,000 for the largest classes. The download is the HuggingFace mirror, about
+90 MB.
+
+![One EuroSAT chip per class](../outputs/eurosat/data_samples.png)
+
+A glance at one chip per class shows the difficulty. Several classes are close in
+colour and texture from above: the crop classes look alike, Pasture and
+HerbaceousVegetation are both green, and a River chip is mostly the surrounding
+fields with a thin strip of water. These are the pairs the model later confuses.
+
+The split is made once from seed 42 and is stratified by class, so each split
+keeps the same class proportions and no image appears in more than one split. The
+sizes are 18,900 training, 4,050 validation, and 4,050 test.
 
 ## Method
 
@@ -68,6 +78,21 @@ backbone is updated.
 | SmallCNN, from scratch | 94.8 percent |
 | ResNet18 frozen, linear probe baseline | 94.4 percent |
 
+![Training and validation curves for the from-scratch SmallCNN](../outputs/eurosat/training_curves.png)
+
+The curves are the record of the training run, and the first thing to read in any
+training. The training loss falls smoothly, and validation accuracy climbs to a
+plateau around epoch seven, then improves slowly to its best at epoch 19, which is
+the checkpoint kept for the test. The validation loss is noisier than the training
+loss, with a few spikes. That is normal for a run with batch normalization, flip
+augmentation, and no learning-rate schedule, where a single epoch can land on a
+less favourable point before recovering. What matters is that the training and
+validation losses stay close and both settle low, so the network is learning
+general structure rather than memorizing the training set. The signature of
+overfitting would be the training loss continuing to fall while the validation
+loss turns and rises, and that does not happen here. If anything the gap is small
+enough that a longer run or a learning-rate schedule could still gain a little.
+
 The two models are within half a percentage point of each other, and the
 from-scratch CNN is slightly ahead. This is not the outcome the comparison was
 set up to expect. The usual lesson is that an ImageNet backbone beats a small
@@ -89,6 +114,13 @@ network rather than a deep one, RGB only rather than all thirteen Sentinel-2
 bands, and a CPU epoch budget rather than long GPU training. Neither model closes
 it, and the honest, slightly surprising part is that the frozen probe does not
 beat the trained network.
+
+![Per-class test accuracy for the from-scratch SmallCNN](../outputs/eurosat/per_class_acc.png)
+
+Accuracy is not uniform across classes. SeaLake and Industrial are nearly
+perfect, because deep water and dense built-up areas look unlike anything else.
+River is the hardest at about 85 percent, since a river chip is mostly the land
+around it. The confusion matrix shows where those errors go.
 
 ![EuroSAT SmallCNN confusion matrix on the test split](../outputs/eurosat/confusion_matrix.png)
 

@@ -68,6 +68,17 @@ This passes the whole dataset once through a frozen ImageNet ResNet18 to extract
 reports its test accuracy. The feature pass is the slow part on CPU. The linear
 head trains in seconds.
 
+## Step 5: the figures
+
+```
+uv run python -m malaigue.eurosat.viz
+```
+
+This reads `metrics.json` and the dataset and writes the training curves, the
+per-class accuracy chart, and a grid of sample chips. It needs the training run
+to have produced `metrics.json` first. The figures regenerate from whatever run
+is in `metrics.json`, so they always match the current numbers.
+
 ## Outputs
 
 - `outputs/eurosat/smallcnn.pt` is the best from-scratch checkpoint, with its
@@ -75,8 +86,12 @@ head trains in seconds.
 - `outputs/eurosat/metrics.json` holds the dataset split sizes, the full training
   history, the from-scratch test and per-class accuracy, the confusion matrix,
   and the probe results.
+- `outputs/eurosat/training_curves.png` is the train and validation loss with the
+  validation-accuracy curve.
+- `outputs/eurosat/per_class_acc.png` is the per-class test accuracy.
 - `outputs/eurosat/confusion_matrix.png` is the test-split confusion matrix for
   the from-scratch CNN.
+- `outputs/eurosat/data_samples.png` is one example chip per class.
 
 ## How to read it, and how to defend it
 

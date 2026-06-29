@@ -98,8 +98,21 @@ model or a claim about foundation models in general.
 The frozen-encoder result above raises a fair question: is Sentinel-2 imagery learnable at all, or
 is the limit the model? The lagoon cannot answer it, since the crisis offers only about fifteen
 scenes and no labels. So a separate module trains a small convolutional network from scratch on
-EuroSAT, a labelled Sentinel-2 land-use dataset in the same sensor domain. It reaches about 94.8
-percent test accuracy, and a frozen ImageNet baseline with a linear probe reaches about 94.4
-percent. The imagery is very learnable when labels are abundant, which is the condition the malaïgue
-experiment did not have. The code is in `src/malaigue/eurosat/`, the write-up in
-[docs/eurosat.md](docs/eurosat.md), and the runbook in [RUN.md](RUN.md).
+EuroSAT, a labelled Sentinel-2 land-use dataset in the same sensor domain, 27,000 chips of 64x64
+pixels in 10 land-use classes.
+
+![One EuroSAT chip per class](outputs/eurosat/data_samples.png)
+
+The network is four convolutional blocks, about 391,000 parameters, trained for 20 epochs on CPU.
+The curves are the evidence that it learned. The training loss falls smoothly, the validation loss
+falls with it apart from the noise of a run without a learning-rate schedule, and validation
+accuracy climbs to a plateau. The best checkpoint, kept for the test, fell on epoch 19.
+
+![Training and validation curves](outputs/eurosat/training_curves.png)
+
+On the held-out test split the from-scratch network reaches 94.8 percent. A frozen ImageNet
+ResNet18 with a linear probe on top, used only as a baseline, reaches 94.4 percent, so the two are
+effectively tied and the trained network is marginally ahead. The imagery is very learnable when
+labels are abundant, which is the condition the malaïgue experiment did not have. The full report,
+with the per-class accuracy and the confusion matrix, is in [docs/eurosat.md](docs/eurosat.md). The
+code is in `src/malaigue/eurosat/` and the runbook in [RUN.md](RUN.md).

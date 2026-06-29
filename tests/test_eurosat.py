@@ -11,7 +11,7 @@ import numpy as np
 import pytest
 import torch
 
-from malaigue.eurosat import data, eval as ev, model, train_torch
+from malaigue.eurosat import data, eval as ev, model, train_torch, viz
 
 DATA_DIR = "data/eurosat/eurosat/2750"
 data_ready = os.path.isdir(DATA_DIR)
@@ -87,6 +87,20 @@ def test_confusion_matrix_shape_and_total():
     cm = ev.confusion_matrix(net, loader, device="cpu", num_classes=data.NUM_CLASSES)
     assert cm.shape == (data.NUM_CLASSES, data.NUM_CLASSES)
     assert cm.sum() == 24
+
+
+def test_plot_training_curves_writes_file(tmp_path):
+    metrics = {"scratch": {
+        "best_epoch": 2, "test_acc": 0.9,
+        "history": [
+            {"epoch": 1, "train_loss": 1.0, "val_loss": 1.1, "val_acc": 0.5},
+            {"epoch": 2, "train_loss": 0.8, "val_loss": 0.9, "val_acc": 0.6},
+        ],
+        "per_class_acc": {f"c{i}": 0.9 for i in range(data.NUM_CLASSES)},
+    }}
+    out = tmp_path / "curves.png"
+    viz.plot_training_curves(metrics, str(out))
+    assert out.exists() and out.stat().st_size > 0
 
 
 @pytest.mark.skipif(not data_ready, reason="EuroSAT dataset not downloaded")
