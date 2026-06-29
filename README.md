@@ -13,7 +13,11 @@ chlorophyll, and has no spatial overlap with the chlorophyll index. The measurem
 crisis is the in-situ dissolved oxygen, which fell to 0.04 mg/L at Bouzigues on 13 August. The
 full report, with methods and figures, is in [docs/evaluation.md](docs/evaluation.md).
 
-## Result
+That is the main result. A second, self-contained experiment then asks whether this imagery is
+learnable at all once labels exist: it trains a small CNN from scratch on the EuroSAT land-use
+dataset, which reaches about 94.8 percent. Both experiments are written up below, with figures.
+
+## The malaïgue result
 
 | Reference | Metric | Value |
 | --- | --- | --- |
@@ -87,26 +91,19 @@ water; and the encoder is frozen and zero-shot. A linear probe or light fine-tun
 labeled water states is the obvious next step. These are discussed in
 [docs/evaluation.md](docs/evaluation.md).
 
-## Scope
+## A second experiment: training a CNN on EuroSAT
 
-Clay is used only as a frozen feature extractor, never trained or fine-tuned. This is a
-single-event test of whether its embeddings carry a water-quality signal, not a benchmark of the
-model or a claim about foundation models in general.
-
-## A trained companion on EuroSAT
-
-The frozen-encoder result above raises a fair question: is Sentinel-2 imagery learnable at all, or
-is the limit the model? The lagoon cannot answer it, since the crisis offers only about fifteen
-scenes and no labels. So a separate module trains a small convolutional network from scratch on
-EuroSAT, a labelled Sentinel-2 land-use dataset in the same sensor domain, 27,000 chips of 64x64
-pixels in 10 land-use classes.
+The malaïgue experiment trains nothing, so it cannot show what this imagery yields when a model is
+actually trained on it. This second experiment does. It trains a small convolutional network from
+scratch on EuroSAT, a labelled Sentinel-2 land-use dataset of 27,000 chips of 64x64 pixels in 10
+classes. It is the same sensor domain as the lagoon work, but with the labels the lagoon never had.
 
 ![One EuroSAT chip per class](outputs/eurosat/data_samples.png)
 
 The network is four convolutional blocks, about 391,000 parameters, trained for 20 epochs on CPU.
 The curves are the evidence that it learned. The training loss falls smoothly, the validation loss
-falls with it apart from the noise of a run without a learning-rate schedule, and validation
-accuracy climbs to a plateau. The best checkpoint, kept for the test, fell on epoch 19.
+follows it apart from the noise of a run without a learning-rate schedule, and validation accuracy
+climbs to a plateau. The best checkpoint, kept for the test, fell on epoch 19.
 
 ![Training and validation curves](outputs/eurosat/training_curves.png)
 
@@ -116,3 +113,12 @@ effectively tied and the trained network is marginally ahead. The imagery is ver
 labels are abundant, which is the condition the malaïgue experiment did not have. The full report,
 with the per-class accuracy and the confusion matrix, is in [docs/eurosat.md](docs/eurosat.md). The
 code is in `src/malaigue/eurosat/` and the runbook in [RUN.md](RUN.md).
+
+## Scope
+
+The two experiments are a paired probe of whether Sentinel-2 imagery carries a usable signal, not a
+benchmark of any model or a general claim about foundation models. The malaïgue test runs Clay
+frozen and zero-shot, training nothing, to see whether its embeddings react to one water-quality
+crisis; they do not. The EuroSAT experiment trains a small CNN from scratch on a labelled dataset;
+it learns the task well. Together they say the imagery is readily learnable once labels exist, and
+that a frozen, label-free model misses an out-of-distribution crisis.
