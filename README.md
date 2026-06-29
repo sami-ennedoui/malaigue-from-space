@@ -114,7 +114,7 @@ labels are abundant, which is the condition the malaïgue experiment did not hav
 with the per-class accuracy and the confusion matrix, is in [docs/eurosat.md](docs/eurosat.md). The
 code is in `src/malaigue/eurosat/` and the runbook in [RUN.md](RUN.md).
 
-## Scope
+## Conclusion
 
 The two experiments are a paired probe of whether Sentinel-2 imagery carries a usable signal, not a
 benchmark of any model or a general claim about foundation models. The malaïgue test runs Clay
