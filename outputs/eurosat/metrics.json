@@ -1,0 +1,343 @@
+{
+  "dataset": {
+    "seed": 42,
+    "classes": [
+      "AnnualCrop",
+      "Forest",
+      "HerbaceousVegetation",
+      "Highway",
+      "Industrial",
+      "Pasture",
+      "PermanentCrop",
+      "Residential",
+      "River",
+      "SeaLake"
+    ],
+    "mean": [
+      0.3444749712944031,
+      0.3802892863750458,
+      0.407850056886673
+    ],
+    "std": [
+      0.2026441991329193,
+      0.1367330253124237,
+      0.11550883203744888
+    ],
+    "n_train": 18900,
+    "n_val": 4050,
+    "n_test": 4050
+  },
+  "scratch": {
+    "model": "SmallCNN (from scratch)",
+    "params": 391466,
+    "epochs_run": 20,
+    "batch_size": 64,
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "optimizer": "Adam",
+    "augmentation": "random h/v flip",
+    "best_val_acc": 0.9464,
+    "best_epoch": 19,
+    "epoch_seconds_mean": 128.1,
+    "history": [
+      {
+        "epoch": 1,
+        "train_loss": 0.8204,
+        "val_loss": 0.7161,
+        "val_acc": 0.7395,
+        "seconds": 120.8
+      },
+      {
+        "epoch": 2,
+        "train_loss": 0.564,
+        "val_loss": 0.5189,
+        "val_acc": 0.8138,
+        "seconds": 128.1
+      },
+      {
+        "epoch": 3,
+        "train_loss": 0.4556,
+        "val_loss": 1.0315,
+        "val_acc": 0.7605,
+        "seconds": 128.7
+      },
+      {
+        "epoch": 4,
+        "train_loss": 0.4086,
+        "val_loss": 0.4594,
+        "val_acc": 0.8385,
+        "seconds": 132.5
+      },
+      {
+        "epoch": 5,
+        "train_loss": 0.354,
+        "val_loss": 0.7012,
+        "val_acc": 0.763,
+        "seconds": 124.2
+      },
+      {
+        "epoch": 6,
+        "train_loss": 0.3209,
+        "val_loss": 0.3308,
+        "val_acc": 0.8832,
+        "seconds": 122.1
+      },
+      {
+        "epoch": 7,
+        "train_loss": 0.3068,
+        "val_loss": 0.2526,
+        "val_acc": 0.9158,
+        "seconds": 131.6
+      },
+      {
+        "epoch": 8,
+        "train_loss": 0.2846,
+        "val_loss": 0.2505,
+        "val_acc": 0.9121,
+        "seconds": 130.4
+      },
+      {
+        "epoch": 9,
+        "train_loss": 0.2646,
+        "val_loss": 0.2314,
+        "val_acc": 0.9225,
+        "seconds": 132.0
+      },
+      {
+        "epoch": 10,
+        "train_loss": 0.2403,
+        "val_loss": 0.2634,
+        "val_acc": 0.9096,
+        "seconds": 132.2
+      },
+      {
+        "epoch": 11,
+        "train_loss": 0.2387,
+        "val_loss": 0.25,
+        "val_acc": 0.9143,
+        "seconds": 122.2
+      },
+      {
+        "epoch": 12,
+        "train_loss": 0.2344,
+        "val_loss": 0.2269,
+        "val_acc": 0.9205,
+        "seconds": 123.7
+      },
+      {
+        "epoch": 13,
+        "train_loss": 0.2123,
+        "val_loss": 0.2398,
+        "val_acc": 0.9151,
+        "seconds": 130.5
+      },
+      {
+        "epoch": 14,
+        "train_loss": 0.2154,
+        "val_loss": 0.4555,
+        "val_acc": 0.8481,
+        "seconds": 127.9
+      },
+      {
+        "epoch": 15,
+        "train_loss": 0.2051,
+        "val_loss": 0.1713,
+        "val_acc": 0.942,
+        "seconds": 127.9
+      },
+      {
+        "epoch": 16,
+        "train_loss": 0.1925,
+        "val_loss": 0.2288,
+        "val_acc": 0.9225,
+        "seconds": 130.8
+      },
+      {
+        "epoch": 17,
+        "train_loss": 0.182,
+        "val_loss": 0.1713,
+        "val_acc": 0.9444,
+        "seconds": 137.0
+      },
+      {
+        "epoch": 18,
+        "train_loss": 0.1857,
+        "val_loss": 0.3509,
+        "val_acc": 0.8837,
+        "seconds": 125.3
+      },
+      {
+        "epoch": 19,
+        "train_loss": 0.182,
+        "val_loss": 0.164,
+        "val_acc": 0.9464,
+        "seconds": 125.9
+      },
+      {
+        "epoch": 20,
+        "train_loss": 0.1692,
+        "val_loss": 0.2103,
+        "val_acc": 0.9316,
+        "seconds": 127.3
+      }
+    ],
+    "checkpoint": "outputs/eurosat/smallcnn.pt",
+    "test_acc": 0.9479,
+    "per_class_acc": {
+      "AnnualCrop": 0.9733,
+      "Forest": 0.9778,
+      "HerbaceousVegetation": 0.9022,
+      "Highway": 0.936,
+      "Industrial": 0.992,
+      "Pasture": 0.9533,
+      "PermanentCrop": 0.92,
+      "Residential": 0.9667,
+      "River": 0.8507,
+      "SeaLake": 0.9933
+    },
+    "confusion_png": "outputs/eurosat/confusion_matrix.png",
+    "confusion_matrix": [
+      [
+        438,
+        1,
+        2,
+        1,
+        0,
+        6,
+        0,
+        0,
+        1,
+        1
+      ],
+      [
+        0,
+        440,
+        9,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      [
+        5,
+        8,
+        406,
+        0,
+        1,
+        6,
+        22,
+        1,
+        1,
+        0
+      ],
+      [
+        4,
+        0,
+        2,
+        351,
+        7,
+        0,
+        1,
+        3,
+        7,
+        0
+      ],
+      [
+        0,
+        0,
+        1,
+        0,
+        372,
+        0,
+        1,
+        0,
+        1,
+        0
+      ],
+      [
+        3,
+        7,
+        3,
+        0,
+        0,
+        286,
+        1,
+        0,
+        0,
+        0
+      ],
+      [
+        17,
+        1,
+        9,
+        0,
+        1,
+        1,
+        345,
+        1,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        15,
+        0,
+        0,
+        435,
+        0,
+        0
+      ],
+      [
+        21,
+        4,
+        7,
+        7,
+        1,
+        7,
+        2,
+        0,
+        319,
+        7
+      ],
+      [
+        2,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        447
+      ]
+    ]
+  },
+  "probe": {
+    "model": "ResNet18 (ImageNet) frozen + linear probe",
+    "note": "baseline for comparison, NOT a trained CNN",
+    "feature_dim": 512,
+    "head_epochs": 30,
+    "feature_pass_seconds": 1597.4,
+    "best_val_acc": 0.9435,
+    "test_acc": 0.9444,
+    "per_class_acc": {
+      "AnnualCrop": 0.9489,
+      "Forest": 0.9933,
+      "HerbaceousVegetation": 0.9422,
+      "Highway": 0.8853,
+      "Industrial": 0.9787,
+      "Pasture": 0.8933,
+      "PermanentCrop": 0.9013,
+      "Residential": 0.9733,
+      "River": 0.9093,
+      "SeaLake": 0.9844
+    }
+  }
+}

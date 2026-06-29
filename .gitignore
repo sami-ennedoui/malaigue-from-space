@@ -24,6 +24,9 @@ data/
 # Build caches
 outputs/cache/
 
+# Trained model checkpoints (reproducible; the metrics.json and PNG stay tracked)
+outputs/eurosat/*.pt
+
 # Planning notes (kept local)
 docs/superpowers/
 

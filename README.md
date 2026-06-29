@@ -92,3 +92,14 @@ labeled water states is the obvious next step. These are discussed in
 Clay is used only as a frozen feature extractor, never trained or fine-tuned. This is a
 single-event test of whether its embeddings carry a water-quality signal, not a benchmark of the
 model or a claim about foundation models in general.
+
+## A trained companion on EuroSAT
+
+The frozen-encoder result above raises a fair question: is Sentinel-2 imagery learnable at all, or
+is the limit the model? The lagoon cannot answer it, since the crisis offers only about fifteen
+scenes and no labels. So a separate module trains a small convolutional network from scratch on
+EuroSAT, a labelled Sentinel-2 land-use dataset in the same sensor domain. It reaches about 94.8
+percent test accuracy, and a frozen ImageNet baseline with a linear probe reaches about 94.4
+percent. The imagery is very learnable when labels are abundant, which is the condition the malaïgue
+experiment did not have. The code is in `src/malaigue/eurosat/`, the write-up in
+[docs/eurosat.md](docs/eurosat.md), and the runbook in [RUN.md](RUN.md).
